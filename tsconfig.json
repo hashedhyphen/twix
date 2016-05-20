@@ -9,6 +9,8 @@
     "removeComments": true
   },
   "files": [
-    "src/twix.ts"
+    "src/twix.ts",
+    "src/signature.ts",
+    "typings/index.d.ts"
   ]
 }
