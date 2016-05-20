@@ -3,7 +3,7 @@
 const assert = require('power-assert');
 const Twix = require('../build/twix').default;
 
-const config = require('./utils').config;
+const config = require('./resources/utils').config;
 
 describe('initialization of Twix', function() {
   let twix = null;
