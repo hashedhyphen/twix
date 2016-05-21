@@ -3,13 +3,7 @@
  * See https://dev.twitter.com/oauth/overview/creating-signatures
  */
 
-'use strict';
-
 import * as qs from 'querystring';
-
-interface Params {
-  [key: string]: string;
-}
 
 /*export function signature(method: string,
                           baseurl: string,
@@ -34,7 +28,7 @@ interface Params {
  *                          (each value is string).
  */
 export function getParameterString(params: Params): string {
-  let chunks: Array<string> = [];
+  let chunks: string[] = [];
 
   for (let key of Object.keys(params).sort()) {
     const val = params[key];

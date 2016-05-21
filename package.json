@@ -5,6 +5,12 @@
   "bugs": {
     "url": "https://github.com/hashedhyphen/twix/issues"
   },
+  "devDependencies": {
+    "mocha": "^2.4.5",
+    "power-assert": "^1.4.1",
+    "typescript": "^1.8.10",
+    "typings": "^1.0.4"
+  },
   "homepage": "https://github.com/hashedhyphen/twix#readme",
   "license": "MIT",
   "main": "index.js",
@@ -14,12 +20,7 @@
   },
   "scripts": {
     "build": "tsc",
-    "test": "mocha"
-  },
-  "devDependencies": {
-    "mocha": "^2.4.5",
-    "power-assert": "^1.4.1",
-    "typescript": "^1.8.10",
-    "typings": "^1.0.4"
+    "pretest": "tsc",
+    "test": "mocha build/test"
   }
 }

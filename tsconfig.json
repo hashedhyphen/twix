@@ -6,11 +6,17 @@
     "noImplicitAny": true,
     "outDir": "build",
     "preserveConstEnums": true,
-    "removeComments": true
+    "removeComments": true,
+    "rootDir": "./"
   },
   "files": [
+    "index.d.ts",
     "src/twix.ts",
     "src/signature.ts",
+    "test/test_initialize.ts",
+    "test/test_signature.ts",
+    "test/resources/params.ts",
+    "test/resources/utils.ts",
     "typings/index.d.ts"
   ]
 }
