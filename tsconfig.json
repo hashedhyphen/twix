@@ -15,7 +15,6 @@
     "src/signature.ts",
     "test/test_initialize.ts",
     "test/test_signature.ts",
-    "test/resources/params.ts",
     "test/resources/utils.ts",
     "typings/index.d.ts"
   ]
