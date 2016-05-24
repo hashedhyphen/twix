@@ -8,3 +8,10 @@ interface TwixConfig {
 interface Params {
   [key: string]: string;
 }
+
+interface Response {
+  [key: string]: any;
+}
+
+type Resolver<T> = (res: T) => any;
+type Rejector = (err: Error) => any;

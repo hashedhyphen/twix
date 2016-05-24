@@ -21,6 +21,7 @@
   "scripts": {
     "build": "tsc",
     "pretest": "tsc",
+    "start": "node build/src/index",
     "test": "mocha build/test"
   }
 }

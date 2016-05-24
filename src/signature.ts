@@ -6,6 +6,8 @@
 import * as crypto from 'crypto';
 import * as qs from 'querystring';
 
+import { percentEncode } from './utils';
+
 /**
  * Return a value for the `oauth_signature` parameter.
  *
@@ -53,13 +55,4 @@ function digestHmacSha1(input: string, key: string): string {
 
   hmac.update(input);
   return hmac.digest('base64');
-}
-
-/**
- * A Percent encoder conformant to RFC 3986.
- * Encode ! ' ( ) * and charcters for which querystring.escape is responsible
- */
-function percentEncode(input: string): string {
-  return qs.escape(input)
-           .replace(/[!'()*]/g, c => `%${c.charCodeAt(0).toString(16)}`);
 }

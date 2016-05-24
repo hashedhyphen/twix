@@ -11,8 +11,12 @@
   },
   "files": [
     "index.d.ts",
-    "src/twix.ts",
+    "node_modules/typescript/lib/lib.es6.d.ts",
+    "src/core.ts",
+    "src/index.ts",
     "src/signature.ts",
+    "src/twix.ts",
+    "src/utils.ts",
     "test/test_initialize.ts",
     "test/test_signature.ts",
     "test/resources/utils.ts",
