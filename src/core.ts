@@ -1,24 +1,52 @@
-import * as crypto from 'crypto';
 import * as https from 'https';
 import * as qs from 'querystring';
-import * as url from 'url';
 
-import { getSignature } from './signature';
-import { percentEncode } from './utils';
+import {
+  getSignature
+} from './signature';
+
+import {
+  percentEncode,
+  getNonce,
+  getAuthValue,
+  getEpoch
+} from './utils';
+
+const HOSTNAME = 'api.twitter.com';
+const API_VERSION = '1.1';
 
 /**
- * Post given parameters to a given target.
+ * Send a GET request to a given target.
  *
  * @param target - i.e. 'statuses/update'
+ * @param queryParams - The query parameters (i.e. { include_entities: true }).
+ * @param bodyParams - The body parameters (i.e. { status: 'Hello!' }).
+ */
+export function get(config: TwixConfig, target: string, queryParams: Params,
+                    bodyParams: Params): Promise<Response> {
+  return fetch(config, 'GET', target, queryParams, bodyParams);
+}
+
+/**
+ * Send a POST request to a given target.
+ *
+ * @param target - i.e. 'statuses/update'
+ * @param queryParams - i.e. { include_entities: true }
+ * @param bodyParams - i.e. { status: 'Hello!' }
  */
 export function post(config: TwixConfig, target: string, queryParams: Params,
                      bodyParams: Params): Promise<Response> {
-  const baseurl  = `https://api.twitter.com/1.1/${target}.json`;
-  const queryStr = qs.stringify(queryParams);
+  return fetch(config, 'POST', target, queryParams, bodyParams);
+}
 
-  const endpoint = queryStr === '' ? baseurl
-                                   : `${baseurl}?${queryStr}`;
-
+/**
+ * Handle network connections.
+ *
+ * @param method - The HTTP method.
+ */
+function fetch(config: TwixConfig, method: string, target: string,
+               queryParams: Params, bodyParams: Params): Promise<Response> {
+  // `let` means `oauth_signature` will be added afterward
   let oauthParams: Params = {
     oauth_consumer_key: config.consumerKey,
     oauth_nonce: getNonce(),
@@ -32,75 +60,27 @@ export function post(config: TwixConfig, target: string, queryParams: Params,
   const paramsSet: Params =
     Object.assign({}, oauthParams, queryParams, bodyParams);
 
-  const signature = getSignature(config, 'POST', baseurl, paramsSet);
+  const baseurl  = `https://${HOSTNAME}/${API_VERSION}/${target}.json`;
+
+  const signature = getSignature(config, method, baseurl, paramsSet);
   oauthParams['oauth_signature'] = signature;
 
-  const authValue = getAuthValue(oauthParams);
-
-  return fetch('POST', endpoint, authValue, bodyParams);
-}
-
-/**
- * Generate a nonce for `oauth_nonce`.
- */
-function getNonce(): string {
-  const str = crypto.randomBytes(32).toString('base64');
-
-  // strip non-word characters
-  return str.replace(/[^A-Za-z0-9]/g, '');
-}
-
-/**
- * Return epoch time in second.
- */
-function getEpoch(): string {
-  // Date.now() returns a millisec value, so need to convert.
-  const second = Math.floor(Date.now() / 1000);
-
-  return second.toString();
-}
-
-/**
- * Generate a value for Authorization HTTP header.
- * Make a chunk such as 'key="value"', then concat them with ', '.
- */
-function getAuthValue(oauthParams: Params): string {
-  let chunks: string[] = [];
-
-  for (let key in oauthParams) {
-    const val = oauthParams[key];
-    chunks.push(`${percentEncode(key)}="${percentEncode(val)}"`);
-  }
-
-  return `OAuth ${chunks.join(', ')}`;
-}
-
-/**
- * Handle network connections.
- *
- * @param method - The HTTP method.
- * @param endpoint - The URL from protocol to query parameters.
- * @param authValue - The value for Authorization HTTP header.
- * @param bodyParams - The body parameters.
- */
-function fetch(method: string, endpoint: string, authValue: string,
-               bodyParams: Params): Promise<Response> {
-  const { hostname, path } = url.parse(endpoint);
+  const queryStr = qs.stringify(queryParams);
+  const searchStr = queryStr === '' ? ''
+                                    : `?${queryStr}`;
 
   const options = {
-    hostname,
-    method,
-    path,
+    hostname: HOSTNAME,
+    method: method,
+    path: `/${API_VERSION}/${target}.json${searchStr}`,
     headers: {
       'User-Agent': 'Twix',
       'Content-Type': 'application/x-www-form-urlencoded',
-      'Authorization': authValue
+      'Authorization': getAuthValue(oauthParams)
     }
   };
 
-  return new Promise<Response>(
-    (resolve: Resolver<Response>, reject: Rejector) => {
-
+  return new Promise((resolve: Resolver<Response>, reject: Rejector) => {
     const req = https.request(options, res => {
       res.setEncoding('utf8');
 
