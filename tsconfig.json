@@ -19,6 +19,7 @@
     "src/utils.ts",
     "test/test_initialize.ts",
     "test/test_signature.ts",
+    "test/test_utils.ts",
     "test/resources/utils.ts",
     "typings/index.d.ts"
   ]

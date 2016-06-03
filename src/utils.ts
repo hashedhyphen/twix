@@ -2,22 +2,18 @@ import * as crypto from 'crypto';
 import * as qs from 'querystring';
 
 /**
- * A Percent encoder conformant to RFC 3986.
- * Encode ! ' ( ) * and charcters for which querystring.escape is responsible
+ * Generate a value for Authorization HTTP header.
+ * Make a chunk such as 'key="value"', then concat them with ', '.
  */
-export function percentEncode(input: string): string {
-  return qs.escape(input)
-           .replace(/[!'()*]/g, c => `%${c.charCodeAt(0).toString(16)}`);
-}
+export function getAuthValue(oauthParams: Params): string {
+  let chunks: string[] = [];
 
-/**
- * Generate a nonce for `oauth_nonce`.
- */
-export function getNonce(): string {
-  const str = crypto.randomBytes(32).toString('base64');
+  for (let key in oauthParams) {
+    const val = oauthParams[key];
+    chunks.push(`${percentEncode(key)}="${percentEncode(val)}"`);
+  }
 
-  // strip non-word characters
-  return str.replace(/[^A-Za-z0-9]/g, '');
+  return `OAuth ${chunks.join(', ')}`;
 }
 
 /**
@@ -31,16 +27,20 @@ export function getEpoch(): string {
 }
 
 /**
- * Generate a value for Authorization HTTP header.
- * Make a chunk such as 'key="value"', then concat them with ', '.
+ * Generate a nonce for `oauth_nonce`.
  */
-export function getAuthValue(oauthParams: Params): string {
-  let chunks: string[] = [];
+export function getNonce(): string {
+  const str = crypto.randomBytes(32).toString('base64');
 
-  for (let key in oauthParams) {
-    const val = oauthParams[key];
-    chunks.push(`${percentEncode(key)}="${percentEncode(val)}"`);
-  }
+  // strip non-word characters
+  return str.replace(/[^A-Za-z0-9]/g, '');
+}
 
-  return `OAuth ${chunks.join(', ')}`;
+/**
+ * A Percent encoder conformant to RFC 3986.
+ * Encode ! ' ( ) * and charcters for which querystring.escape is responsible
+ */
+export function percentEncode(input: string): string {
+  return qs.escape(input)
+           .replace(/[!'()*]/g, c => `%${c.charCodeAt(0).toString(16)}`);
 }
